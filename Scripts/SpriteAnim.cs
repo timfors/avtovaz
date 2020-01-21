@@ -11,12 +11,11 @@ public class SpriteAnim : MonoBehaviour
 
 
     int currentAnim;
-    public float framesPerSecond { get; set; }
+    public float framesPerSecond { get;  private set; }
     public bool isPlaying { get; private set; }
     private void Start()
     {
         allAnims = GetComponent<Animator>();
-        framesPerSecond = 25;
         isPlaying = false;
     }
 
@@ -36,13 +35,12 @@ public class SpriteAnim : MonoBehaviour
     IEnumerator Animate(string name, int beginFrame, int endFrame)
     {
         isPlaying = true;
-        allAnims.speed = 1;
         while (beginFrame <= endFrame)
         {
             if (endFrame - beginFrame >= 0)
             {
                 SetState(name, beginFrame++);
-            } else if (endFrame - beginFrame <= 0)
+            } else if (endFrame - beginFrame < 0)
             {
                 SetState(name, beginFrame--);
             }
@@ -50,11 +48,10 @@ public class SpriteAnim : MonoBehaviour
         }
         isPlaying = false;
     }
-
     public void AnimateFromIndex(string name, int index)
     {
         StopAllCoroutines();
-        StartCoroutine(Animate(name, index, (int)(allAnims.GetCurrentAnimatorStateInfo(0).normalizedTime / framesPerSecond)));
+        StartCoroutine(Animate(name, index, (int)(allAnims.GetCurrentAnimatorClipInfo(0)[0].clip.length * framesPerSecond)));
     }
 
     public void AnimateFromTo(string name, int beginFrame, int endFrame)
@@ -62,4 +59,6 @@ public class SpriteAnim : MonoBehaviour
         StopAllCoroutines();
         StartCoroutine(Animate(name, beginFrame, endFrame));
     }
+
+
 }

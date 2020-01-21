@@ -40,41 +40,48 @@ public class Suspencion : MonoBehaviour
 
                 
                 float distancePerFrame;
-                if (Mathf.Abs(deltaX) > Mathf.Abs(deltaY) && !isVertical && !anim.isPlaying)
+                if (!anim.isPlaying)
                 {
-                    isHorizontal = true;
-                    if (deltaX >= 0)
-                        currentAnim = 0;
-                    else
-                        currentAnim = 1;
-                    
-                    distancePerFrame = maxDelta.x / animationsInfo[currentAnim].limitFrame;
-                    currentAnimState = (int)(deltaX / distancePerFrame);
-                } else if (Mathf.Abs(lastPos.x - firstPos.x) < Mathf.Abs(lastPos.y - firstPos.y) && !isHorizontal && !anim.isPlaying)
-                {
-                    isVertical = true;
-                    if (deltaY > 0)
+                    if (Mathf.Abs(deltaX) > Mathf.Abs(deltaY) && !isVertical)
                     {
-                        currentAnim = 2;
-                        distancePerFrame = maxDelta.y / animationsInfo[currentAnim].limitFrame;
-                        currentAnimState = (int)(deltaY / distancePerFrame);
+                        isHorizontal = true;
+                        if (deltaX >= 0)
+                            currentAnim = 0;
+                        else
+                            currentAnim = 1;
+
+                        distancePerFrame = maxDelta.x / animationsInfo[currentAnim].limitFrame;
+                        currentAnimState = (int)(deltaX / distancePerFrame);
                     }
+                    else if (Mathf.Abs(lastPos.x - firstPos.x) < Mathf.Abs(lastPos.y - firstPos.y) && !isHorizontal)
+                    {
+                        isVertical = true;
+                        if (deltaY > 0)
+                        {
+                            currentAnim = 2;
+                            distancePerFrame = maxDelta.y / animationsInfo[currentAnim].limitFrame;
+                            currentAnimState = (int)(deltaY / distancePerFrame);
+                        }
+                    }
+                    currentAnimState = currentAnimState < 0 ? -currentAnimState : currentAnimState;
+                    currentAnimState = currentAnimState > animationsInfo[currentAnim].limitFrame ? animationsInfo[currentAnim].limitFrame : currentAnimState;
+                    anim.SetState(animationsInfo[currentAnim].name, currentAnimState);
                 }
-                currentAnimState = currentAnimState < 0 ? -currentAnimState : currentAnimState;
-                currentAnimState = currentAnimState > animationsInfo[currentAnim].limitFrame ? animationsInfo[currentAnim].limitFrame : currentAnimState;
-                anim.SetState(animationsInfo[currentAnim].name, currentAnimState);
             }
 
             if (Input.touches.Length == 0 && currentAnimState != 0)
             {
-                Debug.Log(touchPos.Count);
-                Debug.Log(currentAnimState);
-                anim.AnimateFromIndex(animationsInfo[currentAnim].name, currentAnimState + animationsInfo[currentAnim].limitFrame);
+                anim.AnimateFromIndex(animationsInfo[currentAnim].name,   2 * animationsInfo[currentAnim].limitFrame - currentAnimState);
                 touchPos.Clear();
                 currentAnimState = 0;
                 isHorizontal = false;
                 isVertical = false;
 
+            } else if (Input.touches.Length == 0 && currentAnimState == 0)
+            {
+                touchPos.Clear();
+                isHorizontal = false;
+                isVertical = false;
             }
             
             yield return new WaitForEndOfFrame();
