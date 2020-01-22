@@ -27,9 +27,23 @@ public class Suspencion : MonoBehaviour
     {
         while (true)
         {
-            foreach (Touch touch in Input.touches)
+
+            if (Input.touchCount == 0 && currentAnimState != 0)
             {
-                touchPos.Add(touch.position);
+                anim.AnimateFromIndex(animationsInfo[currentAnim].name,   2 * animationsInfo[currentAnim].limitFrame - currentAnimState);
+                touchPos.Clear();
+                currentAnimState = 0;
+                isHorizontal = false;
+                isVertical = false;
+
+            } else if (Input.touchCount == 0 && currentAnimState == 0)
+            {
+                touchPos.Clear();
+                isHorizontal = false;
+                isVertical = false;
+            }
+            else {
+                touchPos.Add(Input.touches[0].position);
 
                 Vector3 firstPos = touchPos[0];
                 Vector3 lastPos = touchPos[touchPos.Count - 1];
@@ -38,7 +52,7 @@ public class Suspencion : MonoBehaviour
 
                 float deltaY = lastPos.y - firstPos.y;
 
-                
+
                 float distancePerFrame;
                 if (!anim.isPlaying)
                 {
@@ -67,21 +81,6 @@ public class Suspencion : MonoBehaviour
                     currentAnimState = currentAnimState > animationsInfo[currentAnim].limitFrame ? animationsInfo[currentAnim].limitFrame : currentAnimState;
                     anim.SetState(animationsInfo[currentAnim].name, currentAnimState);
                 }
-            }
-
-            if (Input.touches.Length == 0 && currentAnimState != 0)
-            {
-                anim.AnimateFromIndex(animationsInfo[currentAnim].name,   2 * animationsInfo[currentAnim].limitFrame - currentAnimState);
-                touchPos.Clear();
-                currentAnimState = 0;
-                isHorizontal = false;
-                isVertical = false;
-
-            } else if (Input.touches.Length == 0 && currentAnimState == 0)
-            {
-                touchPos.Clear();
-                isHorizontal = false;
-                isVertical = false;
             }
             
             yield return new WaitForEndOfFrame();
